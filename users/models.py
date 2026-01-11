@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import UserManager 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    # role-based access control
     ROLE_CHOICES = (
         ("USER", "User"),
         ("ADMIN", "Admin"),

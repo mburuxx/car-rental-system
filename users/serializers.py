@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from .models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
+
+from .models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -12,7 +14,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
-            raise serializers.ValidateError({
+            raise serializers.ValidationError({
                 "password": "Passwords do not match"
             })
         return attrs
@@ -21,3 +23,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop("password2")
         user = User.objects.create_user(**validated_data)
         return user
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['full_name'] = user.full_name
+        token['role'] = user.role
+        return token
